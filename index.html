@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BRAVO</title>
+    <style>
+        :root {
+            --neon-green: #0f0;
+            --dark-bg: #000;
+            --terminal-font: 'Courier New', monospace;
+            --header-bg: #111;
+            --text-color: #0f0;
+            --accent-color: #00ff8c;
+            --glitch-color: #ff00ff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            font-family: var(--terminal-font);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(rgba(0, 255, 0, 0.1) 1px, transparent 1px),
+                radial-gradient(rgba(0, 255, 0, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: 0 0, 25px 25px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .header {
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--neon-green);
+            padding: 20px 0;
+            position: relative;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+        
+        .noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.05;
+            z-index: 1;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        
+        .profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .hacker-name {
+            font-size: 3rem;
+            letter-spacing: 2px;
+            color: var(--neon-green);
+            text-shadow: 0 0 5px var(--neon-green), 0 0 15px var(--neon-green);
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .hacker-name::before {
+            content: "> ";
+            opacity: 0.8;
+        }
+        
+        .title {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 2px solid var(--neon-green);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 20px;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .avatar::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            box-shadow: inset 0 0 10px var(--neon-green);
+            pointer-events: none;
+        }
+        
+        .avatar-icon {
+            color: var(--neon-green);
+            font-size: 80px;
+            transform: translateY(5px);
+        }
+        
+        .main-content {
+            background-color: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--neon-green);
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 20px;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--neon-green);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+        }
+        
+        .section-title::before {
+            content: "~/";
+            margin-right: 10px;
+            color: var(--accent-color);
+        }
+        
+        .section-content {
+            font-size: 1rem;
+            line-height: 1.6;
+            padding-left: 20px;
+            border-left: 1px solid var(--accent-color);
+        }
+        
+        .skills {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .skill {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            background-color: rgba(0, 20, 0, 0.7);
+            border: 1px solid var(--neon-green);
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .skill-name {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .skill-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background-color: rgba(0, 255, 0, 0.1);
+            z-index: 1;
+        }
+        
+        .projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .project {
+            background-color: rgba(0, 20, 0, 0.7);
+            border: 1px solid var(--accent-color);
+            border-radius: 5px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .project:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.3);
+        }
+        
+        .project::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: var(--neon-green);
+        }
+        
+        .project-title {
+            font-size: 1.2rem;
+            color: var(--neon-green);
+            margin-bottom: 10px;
+        }
+        
+        .project-description {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+        
+        .tag {
+            display: inline-block;
+            background-color: rgba(0, 255, 140, 0.2);
+            color: var(--accent-color);
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            margin-top: 5px;
+        }
+        
+        .contact {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin: 10px;
+        }
+        
+        .contact-icon {
+            color: var(--accent-color);
+            margin-right: 10px;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(0, 20, 0, 0.7);
+            border: 1px solid var(--neon-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            color: var(--neon-green);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .social-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+        
+        .social-link i {
+            font-size: 1.2rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .code-block {
+            background-color: rgba(0, 20, 0, 0.7);
+            border: 1px solid var(--accent-color);
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            position: relative;
+        }
+        
+        .code-line {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .code-comment {
+            color: #888;
+        }
+        
+        .code-function {
+            color: #ff9e64;
+        }
+        
+        .code-string {
+            color: #9ece6a;
+        }
+        
+        .code-keyword {
+            color: #bb9af7;
+        }
+        
+        .terminal {
+            background-color: rgba(0, 20, 0, 0.7);
+            border: 1px solid var(--accent-color);
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+        }
+        
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .terminal-button.red {
+            background-color: #ff5f56;
+        }
+        
+        .terminal-button.yellow {
+            background-color: #ffbd2e;
+        }
+        
+        .terminal-button.green {
+            background-color: #27c93f;
+        }
+        
+        .terminal-title {
+            color: var(--accent-color);
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+        
+        .terminal-line {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .terminal-prompt {
+            color: var(--neon-green);
+        }
+        
+        .terminal-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background-color: var(--neon-green);
+            animation: cursor-blink 1s infinite;
+            vertical-align: middle;
+        }
+        
+        @keyframes cursor-blink {
+            0%, 49% {
+                opacity: 1;
+            }
+            50%, 100% {
+                opacity: 0;
+            }
+        }
+        
+        .glitch {
+            position: relative;
+        }
+        
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .glitch::before {
+            color: var(--glitch-color);
+            animation: glitch-effect 3s infinite;
+        }
+        
+        .glitch::after {
+            color: var(--neon-green);
+            animation: glitch-effect 2s infinite;
+        }
+        
+        @keyframes glitch-effect {
+            0% {
+                transform: translate(0);
+            }
+            20% {
+                transform: translate(-3px, 3px);
+            }
+            40% {
+                transform: translate(-3px, -3px);
+            }
+            60% {
+                transform: translate(3px, 3px);
+            }
+            80% {
+                transform: translate(3px, -3px);
+            }
+            100% {
+                transform: translate(0);
+            }
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px 0;
+            color: #888;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(0, 255, 0, 0.3);
+            position: relative;
+        }
+        
+        .blinking {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 49% {
+                opacity: 1;
+            }
+            50%, 100% {
+                opacity: 0;
+            }
+        }
+        
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0) 0%,
+                rgba(0, 255, 0, 0.2) 50%,
+                rgba(0, 0, 0, 0) 100%
+            );
+            pointer-events: none;
+            z-index: 15;
+            opacity: 0.15;
+            animation: scanline 8s linear infinite;
+            background-size: 100% 50px;
+        }
+        
+        @keyframes scanline {
+            0% {
+                background-position: 0 -100vh;
+            }
+            100% {
+                background-position: 0 100vh;
+            }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .projects {
+                grid-template-columns: 1fr;
+            }
+            
+            .skills {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .hacker-name {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .skills {
+                grid-template-columns: 1fr;
+            }
+            
+            .contact {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .hacker-name {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanline"></div>
+    <div class="noise"></div>
+    
+    <header class="header">
+        <div class="container">
+            <div class="profile">
+                <div class="avatar">
+                    <div class="avatar-icon">&#128187;</div>
+                </div>
+                <div class="profile-header">
+                    <h1 class="hacker-name" data-text="rith">BRAVO</h1>
+                    <p class="title">Researcher & VPN Seller & Networking </p>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-button red"></div>
+                <div class="terminal-button yellow"></div>
+                <div class="terminal-button green"></div>
+                <div class="terminal-title">bravo@net:~</div>
+            </div>
+            <div class="terminal-content">
+                <div class="terminal-line">
+                    <span class="terminal-prompt">bravo@net:~$</span> whoami
+                </div>
+                <div class="terminal-line">
+                    Decoding identity... Access granted.
+                </div>
+                <div class="terminal-line">
+                    <span class="terminal-prompt">bravo@net:~$</span> cat profile.txt
+                </div>
+                <div class="terminal-line">
+                    Networking with 5+ years experience in penetration testing, VPN&Proxy Builder, 🌐TGVPNBot high-speed proxy ✅No dela ✅No lag ✅No disconnection✅No IP blocking admin @BRAVO_IT.
+                </div>
+                <div class="terminal-line">
+                    <span class="terminal-prompt">bravo@net:~$</span> <span class="terminal-cursor"></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <section class="section">
+                <h2 class="section-title">About</h2>
+                <div class="section-content">
+                    <p>Networking analyst by day, VPN&Proxy by night. Specialized in network security, exploit development, and cryptography with a focus on responsible disclosure. Former black hat turned security advocate working to build more secure systems for everyone.</p>
+                    <p>Currently researching advanced persistence techniques and memory forensics. VPN&Proxy Seller, and regional security conferences.</p>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2 class="section-title">Skills</h2>
+                <div class="section-content">
+                    <div class="skills">
+                        <div class="skill">
+                            <div class="skill-bar" style="width: 98%;"></div>
+                            <span class="skill-name">Networking</span>
+                        </div>
+                        <div class="skill">
+                            <div class="skill-bar" style="width: 99%;"></div>
+                            <span class="skill-name">Checking & Config</span>
+                        </div>
+                        <div class="skill">
+                            <div class="skill-bar" style="width: 80%;"></div>
+                            <span class="skill-name">Python</span>
+                        </div>
+                        <div class="skill">
+                            <div class="skill-bar" style="width: 50%;"></div>
+                            <span class="skill-name">Exploit Development</span>
+                        </div>
+                        <div class="skill">
+                            <div class="skill-bar" style="width: 85%;"></div>
+                            <span class="skill-name">Engineering</span>
+                        </div>
+                        <div class="skill">
+                            <div class="skill-bar" style="width: 82%;"></div>
+                            <span class="skill-name">Spamming Skills</span>
+                        </div>
+                        <div class="skill">
+                            <div class="skill-bar" style="width: 95%;"></div>
+                            <span class="skill-name">VPN&Proxy </span>
+                        </div>
+                        <div class="skill">
+                            <div class="skill-bar" style="width: 45%;"></div>
+                            <span class="skill-name">Server</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2 class="section-title">Projects</h2>
+                <div class="section-content">
+                    <div class="projects">
+                        <div class="project">
+                            <h3 class="project-title">Sock5 Proxy</h3>
+                            <p class="project-description">Fast service, best quality and didecated ip .</p>
+                            <div class="tags">
+                                <span class="tag">Python</span>
+                                <span class="tag">Telegram bot</span>
+                                <span class="tag">GitHub deploy</span>
+                            </div>
+                        </div>
+                        <div class="project">
+                            <h3 class="project-title">HTTP&HTTPS Proxy</h3>
+                            <p class="project-description">Fast service, best quality and didecated ip .</p>
+                            <div class="tags">
+                                <span class="tag">Python</span>
+                                <span class="tag">Telegram bot</span>
+                                <span class="tag">GitHub deploy</span>
+                            </div>
+                        </div>
+                        <div class="project">
+                            <h3 class="project-title">VLESS&VMESS v2ray</h3>
+                            <p class="project-description">Fast service, best quality and didecated ip. </p>
+                            <div class="tags">
+                                <span class="tag">Python</span>
+                                <span class="tag">Telegram bot</span>
+                                <span class="tag">GitHub deploy</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2 class="section-title">Code Sample</h2>
+                <div class="section-content">
+                    <div class="code-block">
+                        <span class="code-line"><span class="code-comment"># Port scanner with stealth capabilities</span></span>
+                        <span class="code-line"><span class="code-keyword">import</span> socket, random, time, sys</span>
+                        <span class="code-line"></span>
+                        <span class="code-line"><span class="code-function">def</span> <span class="code-keyword">stealth_scan</span>(target, ports, delay=0.5):</span>
+                        <span class="code-line">    results = []</span>
+                        <span class="code-line">    <span class="code-keyword">for</span> port <span class="code-keyword">in</span> ports:</span>
+                        <span class="code-line">        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span>
+                        <span class="code-line">        sock.settimeout(1)</span>
+                        <span class="code-line">        time.sleep(delay + random.random())</span>
+                        <span class="code-line">        result = sock.connect_ex((target, port))</span>
+                        <span class="code-line">        <span class="code-keyword">if</span> result == 0:</span>
+                        <span class="code-line">            service = <span class="code-string">"Unknown"</span></span>
+                        <span class="code-line">            <span class="code-keyword">try</span>:</span>
+                        <span class="code-line">                service = socket.getservbyport(port)</span>
+                        <span class="code-line">            <span class="code-keyword">except</span>:</span>
+                        <span class="code-line">                <span class="code-keyword">pass</span></span>
+                        <span class="code-line">            results.append((port, <span class="code-string">"OPEN"</span>, service))</span>
+                        <span class="code-line">        sock.close()</span>
+                        <span class="code-line">    <span class="code-keyword">return</span> results</span>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2 class="section-title">Contact</h2>
+                <div class="section-content">
+                    <div class="contact">
+                        <div class="contact-item">
+                            <span class="contact-icon">✉️</span>
+                            <span>Gmail : bravo171218@gmail.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📱</span>
+                            <span>Telegram : https://t.me/BRAVO_IT </span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">Telebot</span>
+                            <span>TG Bot : @TGVPN99Bot</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">TG Channel</span>
+                            <span>TG Channel : @TGVPN99</span>
+                        </div>
+                    </div>
+                    
+                    <div class="social-links">
+                        <a href="#" class="social-link">
+                            <i>B</i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i>R</i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i>A</i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i>V</i>
+                        <a href="#" class="social-link">
+                            <i>O</i>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>Made with <span class="blinking">▋</span> | © 20XX rith | All systems are vulnerable</p>
+        </div>
+    </footer>
+
+    <script>
+        // Terminal typing effect
+        const terminalLines = document.querySelectorAll('.terminal-line:not(:last-child)');
+        const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+        
+        async function typeText() {
+            for (let i = 0; i < terminalLines.length; i++) {
+                if (i % 2 === 0) { // Only animate command lines
+                    const line = terminalLines[i];
+                    const text = line.textContent;
+                    line.textContent = '';
+                    const promptSpan = document.createElement('span');
+                    promptSpan.className = 'terminal-prompt';
+                    promptSpan.textContent = text.split(' ')[0] + ' ';
+                    line.appendChild(promptSpan);
+                    
+                    const commandText = text.substring(promptSpan.textContent.length);
+                    
+                    for (let j = 0; j < commandText.length; j++) {
+                        line.textContent += commandText[j];
+                        await delay(50);
+                    }
+                    await delay(300);
+                }
+                terminalLines[i].style.display = 'block';
+                await delay(500);
+            }
+        }
+        
+        // Simulated loading effect
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                typeText();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
